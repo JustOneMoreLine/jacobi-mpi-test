@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 
   /* become one of the actual processes, depending on my id */
   if (myid == 0) {
-    sprintf("1 Coordinator and %d Workers\n", numWorkers);
+    printf("1 Coordinator and %d Workers\n", numWorkers);
     printf("  gridSize:  %d\n  stripSize:  %d\n  numIters:  %d\n",
        gridSize, stripSize, numIters);
     Coordinator(numWorkers, stripSize, gridSize);
@@ -78,7 +78,7 @@ static void Coordinator(int numWorkers, int stripSize, int gridSize) {
 
   /* output the results to file "results" */
   //results = fopen("results", "w");
-  sprintf("results by %d\n", 0);
+  printf("results by %d\n", 0);
   for (i = 1; i <= gridSize; i++) {
     for (j = 1; j <= gridSize; j++) {
       printf("%f ", grid[i][j]);
@@ -133,7 +133,7 @@ static void Worker(int myid, int numWorkers, int stripSize,
   if (myid < numWorkers)
     right = myid%numWorkers + 1;
 
-  sprintf("Worker %d initialized; left is worker %d and right is worker %d\n", 
+  printf("Worker %d initialized; left is worker %d and right is worker %d\n", 
       myid, left, right);
 
   /* do the actual computation */
