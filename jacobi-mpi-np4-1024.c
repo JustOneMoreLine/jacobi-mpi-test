@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <time.h>
+
 #define MAXGRID 258     /* maximum grid size (real points plus edges) */
 #define COORDINATOR 0   /* process number of the Coordinator */
 
@@ -32,7 +34,7 @@ int main(int argc, char *argv[]) {
   numWorkers--;   /* one coordinator, the other processes are workers */
 
   /* get command-line arguments and do a simple error check */
-  gridSize = 512;
+  gridSize = 1024;
   numIters = 10000;
   stripSize = gridSize/numWorkers;
   if (gridSize%numWorkers != 0) {
@@ -62,6 +64,9 @@ static void Coordinator(int numWorkers, int stripSize, int gridSize) {
   MPI_Status status;
   FILE *results;
   double mydiff = 0.0, maxdiff = 0.0;
+  int time_t start, end;
+  float time;
+  start=clock();
   
   for (workerid = 1; workerid <= numWorkers; workerid++) {
     startrow = (workerid-1)*stripSize + 1;
@@ -85,6 +90,8 @@ static void Coordinator(int numWorkers, int stripSize, int gridSize) {
     }
     printf("\n");
   }
+  time = ((float)end - (float)start) / CLOCKS_PER_SEC;
+  printf("\ntime: %f\n", time);
 }
 
 
