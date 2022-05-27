@@ -35,14 +35,14 @@ int main(int argc, char *argv[]) {
   numIters = atoi(argv[2]);
   stripSize = gridSize/numWorkers;
   if (gridSize%numWorkers != 0) {
-    printf("grid size must be a multiple of number of workers\n");
+    sprintf("grid size must be a multiple of number of workers\n");
     exit(1);
   }
 
   /* become one of the actual processes, depending on my id */
   if (myid == 0) {
-    printf("1 Coordinator and %d Workers\n", numWorkers);
-    printf("  gridSize:  %d\n  stripSize:  %d\n  numIters:  %d\n",
+    sprintf("1 Coordinator and %d Workers\n", numWorkers);
+    sprintf("  gridSize:  %d\n  stripSize:  %d\n  numIters:  %d\n",
        gridSize, stripSize, numIters);
     Coordinator(numWorkers, stripSize, gridSize);
   } else {
@@ -69,11 +69,11 @@ static void Coordinator(int numWorkers, int stripSize, int gridSize) {
         MPI_Recv(&grid[i][1], gridSize, MPI_DOUBLE, workerid, 0,
             MPI_COMM_WORLD, &status);
     }
-    printf("got results from worker %d\n", workerid);
+    sprintf("got results from worker %d\n", workerid);
   }
 
   MPI_Reduce(&mydiff, &maxdiff, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-  printf("global maxdiff is %f\n", maxdiff);
+  sprintf("global maxdiff is %f\n", maxdiff);
 
   /* output the results to file "results" */
   results = fopen("results", "w");
@@ -131,7 +131,7 @@ static void Worker(int myid, int numWorkers, int stripSize,
   if (myid < numWorkers)
     right = myid%numWorkers + 1;
 
-  printf("Worker %d initialized; left is worker %d and right is worker %d\n", 
+  sprintf("Worker %d initialized; left is worker %d and right is worker %d\n", 
       myid, left, right);
 
   /* do the actual computation */
@@ -176,6 +176,6 @@ static void Worker(int myid, int numWorkers, int stripSize,
         mydiff = temp;
     }
   MPI_Reduce(&mydiff, &maxdiff, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-  printf("maxdiff of worker %d is %f\n", myid, mydiff);
+  sprintf("maxdiff of worker %d is %f\n", myid, mydiff);
 
 }
