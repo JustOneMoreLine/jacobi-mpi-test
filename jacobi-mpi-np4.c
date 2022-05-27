@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
   numWorkers--;   /* one coordinator, the other processes are workers */
 
   /* get command-line arguments and do a simple error check */
-  gridSize = 512;
+  gridSize = 16;
   numIters = 10000;
   stripSize = gridSize/numWorkers;
   if (gridSize%numWorkers != 0) {
