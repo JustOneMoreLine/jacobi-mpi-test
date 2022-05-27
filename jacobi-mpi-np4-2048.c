@@ -64,7 +64,7 @@ static void Coordinator(int numWorkers, int stripSize, int gridSize) {
   MPI_Status status;
   FILE *results;
   double mydiff = 0.0, maxdiff = 0.0;
-  int time_t start, end;
+  time_t start, end;
   float time;
   start=clock();
   
