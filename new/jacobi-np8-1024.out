@@ -1,0 +1,11 @@
+1 Coordinator and 7 Workers
+  gridSize:  1022
+  stripSize:  146
+  numIters:  100
+Worker 7 initialized; left is worker 6 and right is worker 0
+Worker 2 initialized; left is worker 1 and right is worker 3
+Worker 5 initialized; left is worker 4 and right is worker 6
+Worker 6 initialized; left is worker 5 and right is worker 7
+Worker 1 initialized; left is worker 0 and right is worker 2
+Worker 3 initialized; left is worker 2 and right is worker 4
+Worker 4 initialized; left is worker 3 and right is worker 5

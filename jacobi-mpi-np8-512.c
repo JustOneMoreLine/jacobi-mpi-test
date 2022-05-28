@@ -27,14 +27,14 @@ int main(int argc, char *argv[]) {
   int stripSize;             /* gridSize/numWorkers             */
   int numIters;              /* number of iterations to execute */
 
-  numWorkers = 5;
+  numWorkers = 9;
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &myid);  /* what is my id (rank)? */
   MPI_Comm_size(MPI_COMM_WORLD, &numWorkers);  /* how many processes? */
   numWorkers--;   /* one coordinator, the other processes are workers */
 
   /* get command-line arguments and do a simple error check */
-  gridSize = 1023;
+  gridSize = 511;
   numIters = 10000;
   stripSize = gridSize/numWorkers;
   if (gridSize%numWorkers != 0) {

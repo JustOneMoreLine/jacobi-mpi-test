@@ -1,0 +1,19 @@
+Worker 4 initialized; left is worker 3 and right is worker 0
+Worker 2 initialized; left is worker 1 and right is worker 3
+1 Coordinator and 4 Workers
+  gridSize:  16
+  stripSize:  4
+  numIters:  100
+Worker 1 initialized; left is worker 0 and right is worker 2
+Worker 3 initialized; left is worker 2 and right is worker 4
+maxdiff of worker 3 is 0.005472
+maxdiff of worker 2 is 0.005472
+maxdiff of worker 4 is 0.003751
+maxdiff of worker 1 is 0.003751
+got results from worker 1
+got results from worker 2
+got results from worker 3
+got results from worker 4
+
+TIME: 0.000506
+global maxdiff is 0.005472

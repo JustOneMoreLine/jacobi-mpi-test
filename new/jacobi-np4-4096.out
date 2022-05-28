@@ -1,0 +1,8 @@
+1 Coordinator and 4 Workers
+  gridSize:  4096
+  stripSize:  1024
+  numIters:  100
+Worker 2 initialized; left is worker 1 and right is worker 3
+Worker 4 initialized; left is worker 3 and right is worker 0
+Worker 3 initialized; left is worker 2 and right is worker 4
+Worker 1 initialized; left is worker 0 and right is worker 2

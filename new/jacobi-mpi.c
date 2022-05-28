@@ -11,11 +11,13 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define MAXGRID 258     /* maximum grid size (real points plus edges) */
+#define MAXGRID 4098     /* maximum grid size (real points plus edges) */
 #define COORDINATOR 0   /* process number of the Coordinator */
 
 static void Coordinator(int,int,int);
 static void Worker(int,int,int,int,int);
+double grid[MAXGRID][MAXGRID];
+double grid2[2][MAXGRID][MAXGRID];
 
 
 /* main() -- initialize MPI, then become one of the processes */
@@ -27,15 +29,14 @@ int main(int argc, char *argv[]) {
   int stripSize;             /* gridSize/numWorkers             */
   int numIters;              /* number of iterations to execute */
 
-  numWorkers = 5;
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &myid);  /* what is my id (rank)? */
   MPI_Comm_size(MPI_COMM_WORLD, &numWorkers);  /* how many processes? */
   numWorkers--;   /* one coordinator, the other processes are workers */
 
   /* get command-line arguments and do a simple error check */
-  gridSize = 1023;
-  numIters = 10000;
+  gridSize = atoi(argv[1]);
+  numIters = atoi(argv[2]);
   stripSize = gridSize/numWorkers;
   if (gridSize%numWorkers != 0) {
     printf("grid size must be a multiple of number of workers\n");
@@ -58,7 +59,7 @@ int main(int argc, char *argv[]) {
 
 /* gather and print results from Workers */
 static void Coordinator(int numWorkers, int stripSize, int gridSize) {
-  double grid[MAXGRID][MAXGRID];
+  //double grid[MAXGRID][MAXGRID];
   int i, j, startrow, endrow;
   int workerid;
   MPI_Status status;
@@ -66,8 +67,8 @@ static void Coordinator(int numWorkers, int stripSize, int gridSize) {
   double mydiff = 0.0, maxdiff = 0.0;
   time_t start, end;
   float time;
+
   start=clock();
-  
   for (workerid = 1; workerid <= numWorkers; workerid++) {
     startrow = (workerid-1)*stripSize + 1;
     endrow = startrow + stripSize - 1;
@@ -77,21 +78,23 @@ static void Coordinator(int numWorkers, int stripSize, int gridSize) {
     }
     printf("got results from worker %d\n", workerid);
   }
+  end=clock();
+  time=((float)end - (float)start)/CLOCKS_PER_SEC;
+  printf("\nTIME: %f\n", time);
 
   MPI_Reduce(&mydiff, &maxdiff, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
   printf("global maxdiff is %f\n", maxdiff);
 
   /* output the results to file "results" */
-  //results = fopen("results", "w");
-  printf("results by %d\n", 0);
+  char filename[100];
+  sprintf(filename, "results-np%d-%d", numWorkers, gridSize);
+  results = fopen(filename, "w");
   for (i = 1; i <= gridSize; i++) {
     for (j = 1; j <= gridSize; j++) {
-      printf("%f ", grid[i][j]);
+      fprintf(results, "%f ", grid[i][j]);
     }
-    printf("\n");
+    fprintf(results, "\n");
   }
-  time = ((float)end - (float)start) / CLOCKS_PER_SEC;
-  printf("\ntime: %f\n", time);
 }
 
 
@@ -102,7 +105,7 @@ static void Coordinator(int numWorkers, int stripSize, int gridSize) {
 
 static void Worker(int myid, int numWorkers, int stripSize,
                    int gridSize, int numIters) {
-  double grid [2][MAXGRID][MAXGRID];
+  //double grid [2][MAXGRID][MAXGRID];
   int i, j, iters;
   int current = 0, next = 1;   /* current and next iteration indices */
   int left = 0, right = 0;    /* neighboring strips above and below */
@@ -114,24 +117,24 @@ static void Worker(int myid, int numWorkers, int stripSize,
 
   for (i = 0; i <= stripSize+1; i++)
     for (j = 0; j <= gridSize+1; j++) {
-      grid[current][i][j] = 0.0;
-      grid[next][i][j] = 0.0;
+      grid2[current][i][j] = 0.0;
+      grid2[next][i][j] = 0.0;
     }
   for (i = 0; i <= stripSize+1; i++) {
-    grid[current][i][0] = 1.0;
-    grid[current][i][gridSize+1] = 1.0;
-    grid[next][i][0] = 1.0;
-    grid[next][i][gridSize+1] = 1.0;
+    grid2[current][i][0] = 1.0;
+    grid2[current][i][gridSize+1] = 1.0;
+    grid2[next][i][0] = 1.0;
+    grid2[next][i][gridSize+1] = 1.0;
   }
   if (myid == 1)
     for (j = 0; j <= gridSize+1; j++) {
-      grid[current][0][j] = 1.0;
-      grid[next][0][j] = 1.0;
+      grid2[current][0][j] = 1.0;
+      grid2[next][0][j] = 1.0;
     }
   if (myid == numWorkers)
     for (j = 0; j <= gridSize+1; j++) {
-      grid[current][stripSize+1][j] = 1.0;
-      grid[next][stripSize+1][j] = 1.0;
+      grid2[current][stripSize+1][j] = 1.0;
+      grid2[next][stripSize+1][j] = 1.0;
     }
 
   /* determine neighbors */
@@ -145,25 +148,35 @@ static void Worker(int myid, int numWorkers, int stripSize,
 
   /* do the actual computation */
   for (iters = 1; iters <= numIters; iters++) {
+    printf("Worker %d Running iter %d\n", myid, iters);
     /* exchange my boundaries with my neighbors, in a ring */
     if (right != 0)
-        MPI_Send(&grid[next][stripSize][1], gridSize, MPI_DOUBLE, right, 0,
+        printf("SEND_START: %d -> %d\n", myid, right);
+        MPI_Send(&grid2[next][stripSize][1], gridSize, MPI_DOUBLE, right, 0,
                     MPI_COMM_WORLD);
+        printf("SEND_END: %d -> %d\n", myid, right); 
     if (left != 0)
-        MPI_Send(&grid[next][1][1], gridSize, MPI_DOUBLE, left, 0,
+        printf("SEND_START: %d -> %d\n", myid, left);
+        MPI_Send(&grid2[next][1][1], gridSize, MPI_DOUBLE, left, 0,
                     MPI_COMM_WORLD);
+        printf("SEND_END: %d -> %d\n", myid, left);
     if (left != 0)
-        MPI_Recv(&grid[next][0][1], gridSize, MPI_DOUBLE, left, 0,
+        printf("RECV_START: %d <- %d\n", myid, left);
+        MPI_Recv(&grid2[next][0][1], gridSize, MPI_DOUBLE, left, 0,
                     MPI_COMM_WORLD, &status);
+       printf("RECV_END: %d <- %d\n", myid, left);
+       printf("
     if (right != 0)
-        MPI_Recv(&grid[next][stripSize+1][1], gridSize, MPI_DOUBLE, right, 0,
+        printf("RECV_START: %d <- %d\n", myid, right);
+        MPI_Recv(&grid2[next][stripSize+1][1], gridSize, MPI_DOUBLE, right, 0,
                     MPI_COMM_WORLD, &status);
+        printf("RECV_END: %d <- %d\n", myid, right);
 
     /* update my points */
     for (i = 1; i <= stripSize; i++) {
       for (j = 1; j <= gridSize; j++) {
-        grid[next][i][j] = (grid[current][i-1][j] + grid[current][i+1][j] +
-               grid[current][i][j-1] + grid[current][i][j+1]) / 4;
+        grid2[next][i][j] = (grid2[current][i-1][j] + grid2[current][i+1][j] +
+               grid2[current][i][j-1] + grid2[current][i][j+1]) / 4;
       }
     }
 
@@ -172,19 +185,23 @@ static void Worker(int myid, int numWorkers, int stripSize,
   }
 
   /* send results of my current strip to the coordinator */
+  printf("WORKER %d SEND TO COORDINATOR", myid);
   for (i = 1; i <= stripSize; i++) {
-      MPI_Send(&grid[current][i][1], gridSize, MPI_DOUBLE,
+      MPI_Send(&grid2[current][i][1], gridSize, MPI_DOUBLE,
             COORDINATOR, 0, MPI_COMM_WORLD);
   }
+  printf("WORKER %d FINISH SENDING", myid);
 
   /* compute maximum difference and reduce it with Coordinator */
   for (i = 1; i <= stripSize; i++)
     for (j = 1; j <= gridSize; j++) {
-      temp = fabs(grid[next][i][j] - grid[current][i][j]);
+      temp = fabs(grid2[next][i][j] - grid2[current][i][j]);
       if (temp > mydiff)
         mydiff = temp;
     }
+  printf("WORKER %d REDUCE TO COORDINATOR", myid);
   MPI_Reduce(&mydiff, &maxdiff, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  printf("WORKER %d FINISH REDUCE", myid);
   printf("maxdiff of worker %d is %f\n", myid, mydiff);
 
 }

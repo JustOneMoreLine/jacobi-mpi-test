@@ -1,0 +1,32 @@
+1 Coordinator and 3 Workers
+  gridSize:  1023
+  stripSize:  341
+  numIters:  10000
+[node-03:21186] *** Process received signal ***
+[node-03:21186] Signal: Segmentation fault (11)
+[node-03:21186] Signal code: Address not mapped (1)
+[node-03:21186] Failing at address: 0x7ffece51e000
+[node-03:21185] *** Process received signal ***
+[node-03:21185] Signal: Segmentation fault (11)
+[node-03:21185] Signal code: Address not mapped (1)
+[node-03:21185] Failing at address: 0x7ffea88a4000
+[node-03:21186] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x3ef10)[0x7fab22c7bf10]
+[node-03:21186] [ 1] [0x5592abeb509d]
+[node-03:21186] *** End of error message ***
+[node-03:21185] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x3ef10)[0x7fcb8fe1cf10]
+[node-03:21185] [ 1] [0x556d7a4d809d]
+[node-03:21185] *** End of error message ***
+[node-03:21187] *** Process received signal ***
+[node-03:21187] Signal: Segmentation fault (11)
+[node-03:21187] Signal code: Address not mapped (1)
+[node-03:21187] Failing at address: 0x7fffc5c07000
+[node-03:21187] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x3ef10)[0x7f0fa72e9f10]
+[node-03:21187] [ 1] [0x56078f9cb09d]
+[node-03:21187] *** End of error message ***
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun noticed that process rank 1 with PID 21185 on node node-03 exited on signal 11 (Segmentation fault).
+--------------------------------------------------------------------------
